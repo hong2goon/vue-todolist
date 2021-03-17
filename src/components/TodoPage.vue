@@ -4,7 +4,8 @@
     
     <ul class="list-group">
       <li class="list-group-item" v-for="(todo, index) in todos">
-        <span>{{ todo.context }}</span>
+        <input type="checkbox" v-bind:id="todo.context" v-bind:value="todo.context" v-model="checked" @change="check($event)">
+        <label v-bind:for="todo.context">{{ todo.context }}</label>
         <button type="button" class="btn-del" @click="deleteTodo(index)">삭제</button>
       </li>
     </ul>
@@ -28,10 +29,18 @@
     data() {
       return {
         context:null,
-			  todos: [{context:'청소'},{context:'블로그 쓰기'},{context:'밥먹기'},{context:'안녕'}]
+			  todos: [],
+        checked: []
 		  }
     },
     methods: {
+      check: function(e){
+        if(this.checked.includes(e.target.value)){
+          e.target.nextElementSibling.classList.add('chked');
+        } else {
+          e.target.nextElementSibling.classList.remove('chked');
+        }
+      },
       deleteTodo(i) {
         this.todos.splice(i, 1)
       },
@@ -60,6 +69,9 @@
   h2 {flex:none; margin:0; padding:20px 15px; border-bottom:1px solid #eee;}
   .list-group {flex:1; overflow:auto; margin:0; padding:0; list-style:none;}
   .list-group-item {position:relative; padding:15px; border-bottom:1px solid #ddd;}
+  .list-group-item input[type=checkbox] {position:absolute; top:50%; left:15px; margin:0; width:20px; height:20px; transform:translateY(-50%);}
+  .list-group-item label {display:block; padding:0 30px;}
+  .list-group-item label.chked {text-decoration:line-through; opacity:0.5;} 
   .btn-del {position:absolute; top:50%; right:15px; width:20px; height:20px; text-indent:-9999px; background:transparent; border:none; opacity:0.5; overflow:hidden; transform:translateY(-50%); transition:opacity .5s;}
   .btn-del:hover {opacity:1;}
   .btn-del:before, .btn-del:after {content:''; display:block; position:absolute; top:50%; left:50%; width:2px; height:20px; background:#f00; transform-origin:center;}
