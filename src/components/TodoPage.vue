@@ -3,10 +3,10 @@
     <h2>Todo List</h2>
     
     <ul class="list-group">
-      <li class="list-group-item" v-for="(todo, index) in todos">
+      <li class="list-group-item" v-bind:class="{'chked' : isChked(todo.context)}" v-for="(todo, index) in todos">
         <input type="checkbox" v-bind:id="todo.context" v-bind:value="todo.context" v-model="checked" @change="check($event)">
         <label v-bind:for="todo.context">{{ todo.context }}</label>
-        <button type="button" class="btn-del" @click="deleteTodo(index)">삭제</button>
+        <button type="button" class="btn-del" @click="deleteTodo(todo.context, index)">삭제</button>
       </li>
     </ul>
 
@@ -24,31 +24,60 @@
 </template>
 
 <script>
+  var output = [],
+      value = [];
+  localStorage.removeItem('loglevel:webpack-dev-server');
+  for(var i = 0; i < localStorage.length; i++){
+    output.push({context: localStorage.key(i)});
+    var getVal = localStorage.getItem(localStorage.key(i));
+    if(getVal === 'checked'){
+      value.push(localStorage.key(i));
+    }
+  }
+
   export default {
     name: 'TodoPage',
     data() {
       return {
-        context:null,
-			  todos: [],
-        checked: []
+        context: null,
+			  //todos: [],
+        //todos: [{context: "output"}],
+        todos: output,
+        //checked: []
+        checked: value,
+        isChked: function(e){
+          if(localStorage.getItem(e) === 'checked'){
+            return true;
+          } else {
+            return false;
+          }
+        }
 		  }
     },
     methods: {
       check: function(e){
-        if(this.checked.includes(e.target.value)){
-          e.target.nextElementSibling.classList.add('chked');
+        localStorage.removeItem('loglevel:webpack-dev-server');
+        var id = e.target.id;
+        console.log();
+        if(this.checked.includes(id)){
+          localStorage.setItem(id, 'checked');
+          e.target.parentElement.classList.add('chked');
         } else {
-          e.target.nextElementSibling.classList.remove('chked');
+          localStorage.setItem(id, 'unchecked');
+          e.target.parentElement.classList.remove('chked');
         }
       },
-      deleteTodo(i) {
+      deleteTodo(context, i) {
+        localStorage.removeItem(context);
         this.todos.splice(i, 1)
       },
       createTodo(context) {
         if(context != null){
           this.todos.push({context: context})
+          localStorage.setItem(this.context, 'unchecked');
           this.context = null
         }
+        localStorage.removeItem('loglevel:webpack-dev-server');
       }
     }
   }
@@ -71,7 +100,7 @@
   .list-group-item {position:relative; padding:15px; border-bottom:1px solid #ddd;}
   .list-group-item input[type=checkbox] {position:absolute; top:50%; left:15px; margin:0; width:20px; height:20px; transform:translateY(-50%);}
   .list-group-item label {display:block; padding:0 30px;}
-  .list-group-item label.chked {text-decoration:line-through; opacity:0.5;} 
+  .list-group-item.chked label {text-decoration:line-through; opacity:0.5;} 
   .btn-del {position:absolute; top:50%; right:15px; width:20px; height:20px; text-indent:-9999px; background:transparent; border:none; opacity:0.5; overflow:hidden; transform:translateY(-50%); transition:opacity .5s;}
   .btn-del:hover {opacity:1;}
   .btn-del:before, .btn-del:after {content:''; display:block; position:absolute; top:50%; left:50%; width:2px; height:20px; background:#f00; transform-origin:center;}
